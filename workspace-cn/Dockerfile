@@ -1,8 +1,32 @@
 FROM php:5.6.30-fpm-alpine
 RUN echo "http://mirrors.ustc.edu.cn/alpine/v3.4/main" > /etc/apk/repositories \
 && echo "http://mirrors.ustc.edu.cn/alpine/v3.4/community" >> /etc/apk/repositories \
-&& apk add --no-cache bash git vim jpeg-dev freetype-dev
+&& apk add --no-cache bash git vim openssl jpeg-dev freetype-dev
 RUN docker-php-ext-install pdo_mysql
+
+#####################################
+# sqlite3 with sqlcipher and other depends:
+#####################################
+RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS linux-headers openssl-dev tcl tcl-dev gnupg coreutils sqlite-dev \
+&& docker-php-source extract
+COPY ./sqlcipher-master.zip /usr/src/ 
+RUN mkdir /usr/src/sqlcipher \
+&& unzip /usr/src/sqlcipher-master.zip -d /usr/src/sqlcipher \
+&& cd /usr/src/sqlcipher/sqlcipher-master \
+&& ./configure --enable-tempstore=yes CFLAGS="-DSQLITE_HAS_CODEC" LDFLAGS="-lcrypto" \
+&& make \
+&& cd /usr/src/php/ext/sqlite3 \
+&& mv config0.m4 config.m4 2> /dev/null \
+&& phpize \
+&& ./configure --enable-tempstore=yes CFLAGS="-DSQLITE_HAS_CODEC" LDFLAGS="-lcrypto" \
+&& cp /usr/src/sqlcipher/sqlcipher-master/sqlite3.c libsqlite \
+&& sed -i 's|PHP_FE_END|{NULL,NULL,NULL}|' sqlite3.c \
+&& make \
+&& docker-php-ext-install sqlite3 \
+&& rm -rf /usr/src/sqlcipher \
+&& rm -f /usr/src/sqlcipher-master.zip \
+&& docker-php-source delete \
+&& apk del .phpize-deps
 
 #####################################
 # gd:
@@ -12,8 +36,8 @@ RUN docker-php-ext-install pdo_mysql
 RUN docker-php-ext-configure gd \
         --enable-gd-native-ttf \
         --with-jpeg-dir=/usr/include \
-        --with-freetype-dir=/usr/include && \
-    docker-php-ext-install gd
+        --with-freetype-dir=/usr/include \
+&& docker-php-ext-install gd 
     
 #####################################
 # Composer:
