@@ -3,7 +3,6 @@ RUN echo "http://mirrors.ustc.edu.cn/alpine/v3.4/main" > /etc/apk/repositories \
 && echo "http://mirrors.ustc.edu.cn/alpine/v3.4/community" >> /etc/apk/repositories \
 && apk add --no-cache bash git vim openssl jpeg-dev freetype-dev ffmpeg
 RUN docker-php-ext-install pdo_mysql
-
 #####################################
 # sqlite3 with sqlcipher and other depends:
 #####################################
