@@ -1,5 +1,8 @@
 FROM php:5.6.30-fpm-alpine
-RUN apk add --no-cache bash git vim openssl jpeg-dev freetype-dev
+RUN apk add --no-cache bash git vim openssl jpeg-dev freetype-dev \
+autoconf dpkg-dev dpkg file g++ gcc \
+libc-dev make pcre-dev pkgconf re2c openssl-dev tcl \
+tcl-dev gnupg coreutils ffmpeg
 RUN docker-php-ext-install pdo_mysql
 
 #####################################
