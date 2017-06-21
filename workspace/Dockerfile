@@ -7,7 +7,7 @@ RUN docker-php-ext-install pdo_mysql
 #####################################
 RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS linux-headers openssl-dev tcl tcl-dev gnupg coreutils sqlite-dev \
 && docker-php-source extract
-COPY ./sqlcipher-master.zip /usr/src/ 
+COPY ./sqlcipher-master.zip /usr/src/
 RUN mkdir /usr/src/sqlcipher \
 && unzip /usr/src/sqlcipher-master.zip -d /usr/src/sqlcipher \
 && cd /usr/src/sqlcipher/sqlcipher-master \
@@ -26,6 +26,7 @@ RUN mkdir /usr/src/sqlcipher \
 && docker-php-source delete \
 && apk del .phpize-deps
 
+
 #####################################
 # gd:
 #####################################
@@ -34,8 +35,8 @@ RUN mkdir /usr/src/sqlcipher \
 RUN docker-php-ext-configure gd \
         --enable-gd-native-ttf \
         --with-jpeg-dir=/usr/include \
-        --with-freetype-dir=/usr/include \
-&& docker-php-ext-install gd 
+        --with-freetype-dir=/usr/include && \
+    docker-php-ext-install gd
     
 #####################################
 # Composer:
@@ -45,6 +46,8 @@ RUN docker-php-ext-configure gd \
 RUN curl -s http://getcomposer.org/installer | php && \
     echo "export PATH=${PATH}:/var/www/vendor/bin" >> ~/.bashrc && \
     mv composer.phar /usr/local/bin/composer
+
+
 
 #####################################
 # silk-v3 and deps
